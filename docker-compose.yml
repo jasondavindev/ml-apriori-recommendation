@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  maria-db:
+    container_name: apriori_db
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "recommendations"
+      MYSQL_USER: "dba"
+      MYSQL_PASSWORD: "dba"
+    volumes:
+      - ./data/db:/var/lib/mysql
