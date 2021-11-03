@@ -5,7 +5,6 @@ from domain.repositories.product_repository import get_all_products
 from domain.repositories.transaction_items_repository import \
     get_all_transaction_items
 
-frequences = {}
 MIN_SUP = 0.02
 MIN_CONF = 0.5
 
@@ -69,18 +68,11 @@ def parse_items_to_key(items):
 
 
 def count_frequence(transactions: dict[int, set[int]], itemset: set[int]):
-    key = parse_items_to_key(itemset)
-
-    if frequences.get(key):
-        return frequences.get(key)
-
     count = 0
 
     for items in transactions.values():
         if itemset.issubset(items):
             count += 1
-
-    frequences[key] = count
 
     return count
 
