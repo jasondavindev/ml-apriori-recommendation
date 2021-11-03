@@ -2,7 +2,7 @@ from itertools import combinations
 
 from domain.entities.product import Product
 from domain.repositories.product_repository import get_all_products
-from domain.repositories.transaction_items import get_all_transaction_items
+from domain.repositories.transaction_items_repository import get_all_transaction_items
 from domain.repositories.transaction_repository import get_all_transactions
 
 frequences = {}
