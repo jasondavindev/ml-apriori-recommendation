@@ -1,17 +1,31 @@
-from itertools import combinations, product
+from itertools import combinations
 
 from domain.entities.product import Product
-from domain.entities.transaction import Transaction
 from domain.repositories.product_repository import get_all_products
+from domain.repositories.transaction_items import get_all_transaction_items
 from domain.repositories.transaction_repository import get_all_transactions
+
+frequences = {}
+
+
+def parse_transaction_items_to_dict(transactions):
+    transactions_dict = {}
+
+    for transaction in transactions:
+        transactions_dict[transaction.transaction_id] = set(
+            [item.product_id for item in transaction.transaction_items])
+
+    return transactions_dict
 
 
 def get_strongest_associations():
     associations = {}
 
-    transactions = get_all_transactions()
+    print("Retrieving transactions and products")
+    transactions = get_all_transaction_items()
     products = get_all_products()
 
+    print("Generating combinations")
     combinations_of_products = list(combinations(products, 2))
 
     count = 0
@@ -20,10 +34,10 @@ def get_strongest_associations():
     print(f"Calculating associations for {max} combinations")
     print("===================================")
     for combination in combinations_of_products:
-        first_item = combination[0]
-        second_item = combination[1]
+        first_item, second_item = combination
         support_value = support(first_item, second_item, transactions)
-        confidence_value = confidence(first_item, second_item, transactions)
+        confidence_value = confidence(
+            first_item, second_item, transactions)
 
         associations[(first_item.product_name, second_item.product_name)] = {
             "support": support_value,
@@ -44,46 +58,49 @@ def get_strongest_associations():
     return [associations.pop(), associations.pop()]
 
 
-def support(first_item: Product, second_item: Product, transactions: list[Transaction]):
+def parse_items_to_key(items):
+    return '_'.join([str(item) for item in items])
+
+
+def count_frequence(transactions: dict[int, set[int]], itemset: set[int]):
+    key = parse_items_to_key(itemset)
+
+    if frequences.get(key):
+        return frequences.get(key)
+
+    count = 0
+
+    for items in transactions.values():
+        if itemset.issubset(items):
+            count += 1
+
+    frequences[key] = count
+
+    return count
+
+
+def support(first_item: Product, second_item: Product, transactions: dict[int, set[int]]):
     """
     Returns the support of an itemset in a list of transactions.
     """
 
     itemset = set([first_item.product_id, second_item.product_id])
-    return len(
-        [
-            1 for transaction in transactions if itemset.issubset(
-                set([item.product_id for item in transaction.transaction_items])
-            )
-        ]
-    ) / len(transactions)
+    return count_frequence(transactions, itemset) / len(transactions.keys())
 
 
-def confidence(first_item: Product, second_item: Product, transactions: list[Transaction]):
+def confidence(first_item: Product, second_item: Product, transactions: dict[int, set[int]]):
     """
     Returns the confidence of an itemset in a list of transactions.
     """
     itemset = set([first_item.product_id, second_item.product_id])
-    return len(
-        [
-            1 for transaction in transactions if itemset.issubset(
-                set([item.product_id for item in transaction.transaction_items])
-            )
-        ]
-    ) / len(
-        [
-            1 for transaction in transactions if first_item.product_id in
-            [item.product_id for item in transaction.transaction_items]
-        ]
-    )
 
+    count = 0
 
-def get_transaction_product_ids(transactions: list[Transaction]):
-    transaction_product_ids = []
-    for transaction in transactions:
-        transaction_product_ids.append(
-            [item.product_id for item in transaction.transaction_items])
-    return transaction_product_ids
+    for transaction_items in transactions.values():
+        if first_item.product_id in transaction_items:
+            count += 1
+
+    return count_frequence(transactions, itemset) / count
 
 
 def main():
