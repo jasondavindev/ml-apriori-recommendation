@@ -4,3 +4,4 @@ SQLAlchemy==1.4.23
 pandas
 matplotlib
 numpy
+apyori

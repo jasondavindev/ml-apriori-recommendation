@@ -25,7 +25,6 @@ def get_all_transaction_items(period_day=None):
     group by t.transaction_id, p.product_id;
     """
 
-    print(query)
     all = session.execute(query).all()
 
     for transaction in all:
