@@ -99,41 +99,65 @@ def confidence(first_item: int, second_item: int, transactions: dict[int, set[in
 
     return count_frequence(transactions, itemset) / count
 
+def get_rules_as_int_list(rules):
+    rules_set = [(e['rule'].split('_')) for e in rules]
+    return [set([int(x) for x in e]) for e in rules_set]
+
+def transform_transactions_to_items_lists(transactions):
+    return [list(e[1]) for e in transactions.items()]
+
+def match_apyori_and_apriori(apyori_results, apriori_results):
+    return [e for e in apyori_results if e.items.issubset(apriori_results[0]) or e.items.issubset(apriori_results[1])]
 
 def main():
     if __name__ == "__main__":
         print("ALL TRANSACTIONS")
+        all_transactions = transform_transactions_to_items_lists(get_all_transaction_items())
+        
         strongest_associations = get_strongest_associations(MIN_SUP, MIN_CONF)
+        rules_set = get_rules_as_int_list(strongest_associations)
+
+        apyori_results = list(apriori(all_transactions, min_support=MIN_SUP, min_confidence=MIN_CONF))
+        apyori_results_match = match_apyori_and_apriori(apyori_results, rules_set)
+
         print(strongest_associations)
+        print(apyori_results_match)
 
         print("MORNING TRANSACTIONS")
-        strongest_associations_morning = get_strongest_associations(
-            MIN_SUP, MIN_CONF, 'morning')
-        print(strongest_associations_morning)
+        morning_transactions = transform_transactions_to_items_lists(get_all_transaction_items('morning'))
+
+        strongest_associations = get_strongest_associations(MIN_SUP, MIN_CONF, 'morning')
+        rules_set = get_rules_as_int_list(strongest_associations)
+
+        apyori_results = list(apriori(morning_transactions, min_support=MIN_SUP, min_confidence=MIN_CONF))
+        apyori_results_match = match_apyori_and_apriori(apyori_results, rules_set)
+
+        print(strongest_associations)
+        print(apyori_results_match)
 
         print("AFTERNOON TRANSACTIONS")
-        strongest_associations_afternoon = get_strongest_associations(
-            MIN_SUP, MIN_CONF, 'afternoon')
-        print(strongest_associations_afternoon)
+        afternoon_transactions = transform_transactions_to_items_lists(get_all_transaction_items('afternoon'))
+
+        strongest_associations = get_strongest_associations(MIN_SUP, MIN_CONF, 'afternoon')
+        rules_set = get_rules_as_int_list(strongest_associations)
+
+        apyori_results = list(apriori(afternoon_transactions, min_support=MIN_SUP, min_confidence=MIN_CONF))
+        apyori_results_match = match_apyori_and_apriori(apyori_results, rules_set)
+
+        print(strongest_associations)
+        print(apyori_results_match)
 
         print("EVENING TRANSACTIONS")
-        strongest_associations_evening = get_strongest_associations(
-            MIN_SUP, MIN_CONF, 'evening')
-        print(strongest_associations_evening)
+        evening_transactions = transform_transactions_to_items_lists(get_all_transaction_items('evening'))
 
-        all_transactions = [list(e[1]) for e in get_all_transaction_items().items()]
-        morning_transactions = [list(e[1]) for e in get_all_transaction_items('morning').items()]
-        afternoon_transactions = [list(e[1]) for e in get_all_transaction_items('afternoon').items()]
-        evening_transactions = [list(e[1]) for e in get_all_transaction_items('evening').items()]
+        strongest_associations = get_strongest_associations(MIN_SUP, MIN_CONF, 'evening')
+        rules_set = get_rules_as_int_list(strongest_associations)
 
-        print('ALL TRANSACTIONS')
-        print(list(apriori(all_transactions, min_support=MIN_SUP, min_confidence=MIN_CONF)))
-        print('MORNING TRANSACTIONS')
-        print(list(apriori(morning_transactions, min_support=MIN_SUP, min_confidence=MIN_CONF)))
-        print('AFTERNOON TRANSACTIONS')
-        print(list(apriori(afternoon_transactions, min_support=MIN_SUP, min_confidence=MIN_CONF)))
-        print('EVENING TRANSACTIONS')
-        print(list(apriori(evening_transactions, min_support=MIN_SUP, min_confidence=MIN_CONF)))
+        apyori_results = list(apriori(evening_transactions, min_support=MIN_SUP, min_confidence=MIN_CONF))
+        apyori_results_match = match_apyori_and_apriori(apyori_results, rules_set)
+
+        print(strongest_associations)
+        print(apyori_results_match)
 
         # LIFT PARAM
         # Lift basically tells us that the likelihood of buying a Burger and Ketchup
