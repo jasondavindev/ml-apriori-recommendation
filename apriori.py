@@ -1,9 +1,5 @@
-from itertools import combinations
-
-from domain.entities.product import Product
 from domain.repositories.product_repository import get_all_products
-from domain.repositories.transaction_items_repository import \
-    get_all_transaction_items
+from domain.repositories.transaction_items_repository import get_all_transaction_items
 
 MIN_SUP = 0.02
 MIN_CONF = 0.5
@@ -61,10 +57,6 @@ def get_strongest_associations():
                           key=lambda x: (x["confidence"], x['support']))
 
     return associations[-2:]
-
-
-def parse_items_to_key(items):
-    return '_'.join([str(item) for item in items])
 
 
 def count_frequence(transactions: dict[int, set[int]], itemset: set[int]):
