@@ -1,8 +1,16 @@
 from domain.repositories.product_repository import get_all_products
 from domain.repositories.transaction_items_repository import get_all_transaction_items
+import argparse
 
-MIN_SUP = 0.02
-MIN_CONF = 0.5
+parser = argparse.ArgumentParser()
+parser.add_argument('--period-day', required=False)
+parser.add_argument('--min-sup', required=True, type=float)
+parser.add_argument('--min-conf', required=True, type=float)
+args = parser.parse_args()
+
+MIN_SUP = args.min_sup
+MIN_CONF = args.min_conf
+PERIOD_DAY = args.period_day
 
 
 def prune(rules, min_sup, min_conf):
@@ -13,7 +21,7 @@ def get_strongest_associations():
     associations = {}
 
     print("Retrieving transactions and products")
-    transactions = get_all_transaction_items()
+    transactions = get_all_transaction_items(period_day=PERIOD_DAY)
     products = get_all_products()
     max = len(products)
 

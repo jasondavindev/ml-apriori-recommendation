@@ -1,10 +1,15 @@
 from domain.db.config import session
 
 
-def get_all_transaction_items():
+def get_all_transaction_items(period_day=None):
+    period_day_where = f"where t.period_name = '{period_day}'"
+
+    if period_day not in [None, 'morning', 'afternoon', 'evening']:
+        raise RuntimeError('Invalid period day')
+
     transactions = {}
 
-    query = """
+    query = f"""
     select
         t.transaction_id,
         p.product_id
@@ -16,9 +21,11 @@ def get_all_transaction_items():
     inner join
         products p
         on p.product_id = ti.product_id
+    {period_day_where if period_day else ""}
     group by t.transaction_id, p.product_id;
     """
 
+    print(query)
     all = session.execute(query).all()
 
     for transaction in all:
