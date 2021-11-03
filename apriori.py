@@ -44,14 +44,14 @@ def get_strongest_associations():
             "confidence": confidence_value
         }
 
+        count += 1
+
         print(
             f"combination: {first_item.product_name} - {second_item.product_name}")
         print(f"support: {support_value}")
         print(f"confidence: {confidence_value}")
         print(f"{count} / {max}")
         print("===================================")
-
-        count += 1
 
     associations = sorted(associations.items(),
                           key=lambda x: x[1]["confidence"])
