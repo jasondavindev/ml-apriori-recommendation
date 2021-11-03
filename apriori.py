@@ -2,20 +2,16 @@ from itertools import combinations
 
 from domain.entities.product import Product
 from domain.repositories.product_repository import get_all_products
-from domain.repositories.transaction_items_repository import get_all_transaction_items
-from domain.repositories.transaction_repository import get_all_transactions
+from domain.repositories.transaction_items_repository import \
+    get_all_transaction_items
 
 frequences = {}
+MIN_SUP = 0.02
+MIN_CONF = 0.5
 
 
-def parse_transaction_items_to_dict(transactions):
-    transactions_dict = {}
-
-    for transaction in transactions:
-        transactions_dict[transaction.transaction_id] = set(
-            [item.product_id for item in transaction.transaction_items])
-
-    return transactions_dict
+def prune(rules, min_sup, min_conf):
+    return [rule for rule in rules if rule['support'] >= min_sup and rule['confidence'] >= min_conf]
 
 
 def get_strongest_associations():
@@ -24,38 +20,48 @@ def get_strongest_associations():
     print("Retrieving transactions and products")
     transactions = get_all_transaction_items()
     products = get_all_products()
+    max = len(products)
 
-    print("Generating combinations")
-    combinations_of_products = list(combinations(products, 2))
+    support_list = []
+    confidence_list = []
 
-    count = 0
-    max = len(combinations_of_products)
-
-    print(f"Calculating associations for {max} combinations")
+    print(f"Calculating support for {max} combinations")
     print("===================================")
-    for combination in combinations_of_products:
-        first_item, second_item = combination
-        support_value = support(first_item, second_item, transactions)
-        confidence_value = confidence(
-            first_item, second_item, transactions)
 
-        associations[(first_item.product_name, second_item.product_name)] = {
+    for product in products:
+        support_value = support(
+            product.product_id, product.product_id, transactions)
+
+        support_list.append({
             "support": support_value,
-            "confidence": confidence_value
-        }
+            "confidence": 1,
+            "rule": str(product.product_id),
+            "product_name": product.product_name
+        })
 
-        count += 1
+    sup_prune_list = prune(support_list, MIN_SUP, 1)
 
-        print(
-            f"combination: {first_item.product_name} - {second_item.product_name}")
-        print(f"support: {support_value}")
-        print(f"confidence: {confidence_value}")
-        print(f"{count} / {max}")
-        print("===================================")
+    for item1 in sup_prune_list:
+        for item2 in sup_prune_list:
+            if item1['rule'] != item2['rule']:
+                rule = f"{item1['rule']}_{item2['rule']}"
+                support_value = support(
+                    int(item1['rule']), int(item2['rule']), transactions)
+                confidence_value = confidence(
+                    int(item1['rule']), int(item2['rule']), transactions)
 
-    associations = sorted(associations.items(),
-                          key=lambda x: x[1]["confidence"])
-    return [associations.pop(), associations.pop()]
+                confidence_list.append({
+                    "support": support_value,
+                    "confidence": confidence_value,
+                    "rule": rule,
+                    "combination": f"{item1['product_name']} - {item2['product_name']}"
+                })
+
+    associations = prune(confidence_list, MIN_SUP, MIN_CONF)
+    associations = sorted(associations,
+                          key=lambda x: (x["confidence"], x['support']))
+
+    return associations[-2:]
 
 
 def parse_items_to_key(items):
@@ -79,25 +85,25 @@ def count_frequence(transactions: dict[int, set[int]], itemset: set[int]):
     return count
 
 
-def support(first_item: Product, second_item: Product, transactions: dict[int, set[int]]):
+def support(first_item: int, second_item: int, transactions: dict[int, set[int]]):
     """
     Returns the support of an itemset in a list of transactions.
     """
 
-    itemset = set([first_item.product_id, second_item.product_id])
+    itemset = set([first_item, second_item])
     return count_frequence(transactions, itemset) / len(transactions.keys())
 
 
-def confidence(first_item: Product, second_item: Product, transactions: dict[int, set[int]]):
+def confidence(first_item: int, second_item: int, transactions: dict[int, set[int]]):
     """
     Returns the confidence of an itemset in a list of transactions.
     """
-    itemset = set([first_item.product_id, second_item.product_id])
+    itemset = set([first_item, second_item])
 
     count = 0
 
     for transaction_items in transactions.values():
-        if first_item.product_id in transaction_items:
+        if first_item in transaction_items:
             count += 1
 
     return count_frequence(transactions, itemset) / count
