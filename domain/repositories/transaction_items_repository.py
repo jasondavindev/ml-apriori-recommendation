@@ -1,4 +1,5 @@
 from domain.db.config import session
+from domain.entities.transaction_item import TransactionItem
 
 
 def get_all_transaction_items(period_day=None):
@@ -31,7 +32,14 @@ def get_all_transaction_items(period_day=None):
         trans_id, prod_id = transaction
 
         if transactions.get(trans_id):
-            transactions[trans_id] = transactions.get(trans_id).union([prod_id])
+            transactions[trans_id] = transactions.get(
+                trans_id).union([prod_id])
         else:
             transactions[trans_id] = set([prod_id])
     return transactions
+
+
+def create_transaction_item(transaction_id: int, product_id: int):
+    transaction_item = TransactionItem(transaction_id, product_id)
+    session.add(transaction_item)
+    return transaction_item
