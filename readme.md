@@ -76,3 +76,8 @@ EVENING TRANSACTIONS
 [RelationRecord(items=frozenset({24, 7}), support=0.06130268199233716, ordered_statistics=[OrderedStatistic(items_base=frozenset({24}), items_add=frozenset({7}), confidence=0.5714285714285714, lift=1.9885714285714287)]), RelationRecord(items=frozenset({80, 82}), support=0.022988505747126436, ordered_statistics=[OrderedStatistic(items_base=frozenset({82}), items_add=frozenset({80}), confidence=0.6000000000000001, lift=7.457142857142858)])]
 
 ```
+
+### Members
+- [Marcos Toledo](https://github.com/toledompm)
+- [Jason Davin](https://github.com/jasondavindev)
+- [Nicolas Fujisawa](https://github.com/nicolasfujisawa)
