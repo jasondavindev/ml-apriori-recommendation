@@ -22,8 +22,8 @@ endef
 
 setup-db:
 	@echo "Setting up database..."
-	docker-compose exec maria-db bash -c 'mysql -u $(DB_USER) -e "$(CREATE_DB_SCRIPT)" -p'
+	docker-compose exec maria-db bash -c 'mysql -u $(DB_USER) -e "$(CREATE_DB_SCRIPT)" --password=dba'
 
 run:
-	docker run --rm -ti -v ${PWD}:/app -w /app --network=ml-apriori-recommendation_default python:3.9-slim \
+	docker run --rm -ti -v ${PWD}:/app --name apriori_container -w /app --network=apriori_network python:3.9-slim \
     bash -c "/usr/local/bin/pip install -r /app/requirements.txt; bash"

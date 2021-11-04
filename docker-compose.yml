@@ -13,3 +13,7 @@ services:
       MYSQL_PASSWORD: "dba"
     volumes:
       - ./data/db:/var/lib/mysql
+
+networks:
+  default:
+    name: apriori_network
