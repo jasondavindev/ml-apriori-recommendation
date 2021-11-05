@@ -1,5 +1,4 @@
 from domain.db.config import Base
-from domain.entities.transaction_item import TransactionItem
 from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.orm import relation
 
@@ -12,7 +11,7 @@ class Transaction(Base):
     period_name = Column(String(length=255), nullable=False)
     weekday_end = Column(String(length=255), nullable=False)
 
-    transaction_items = relation(TransactionItem, back_populates="transaction")
+    transaction_items = relation('TransactionItem', back_populates="transaction")
 
     def __init__(self, date_time, period_name, weekday_end):
         self.date_time = date_time
