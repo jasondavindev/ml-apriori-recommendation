@@ -2,6 +2,7 @@ import argparse
 
 from apyori import apriori
 
+from domain.entities.transaction import Transaction
 from domain.repositories.product_repository import get_all_products
 from domain.repositories.transaction_items_repository import \
     get_all_transaction_items
@@ -66,7 +67,7 @@ def get_strongest_associations(min_sup, min_conf, period_day=None):
     return associations[-2:]
 
 
-def count_frequence(transactions: dict[int, set[int]], itemset: set[int]):
+def count_frequence(transactions, itemset):
     count = 0
 
     for items in transactions.values():
@@ -76,7 +77,7 @@ def count_frequence(transactions: dict[int, set[int]], itemset: set[int]):
     return count
 
 
-def support(first_item: int, second_item: int, transactions: dict[int, set[int]]):
+def support(first_item: int, second_item: int, transactions):
     """
     Returns the support of an itemset in a list of transactions.
     """
@@ -85,7 +86,7 @@ def support(first_item: int, second_item: int, transactions: dict[int, set[int]]
     return count_frequence(transactions, itemset) / len(transactions.keys())
 
 
-def confidence(first_item: int, second_item: int, transactions: dict[int, set[int]]):
+def confidence(first_item: int, second_item: int, transactions):
     """
     Returns the confidence of an itemset in a list of transactions.
     """

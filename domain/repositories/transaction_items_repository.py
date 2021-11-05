@@ -8,8 +8,6 @@ def get_all_transaction_items(period_day=None):
     if period_day not in [None, 'morning', 'afternoon', 'evening']:
         raise RuntimeError('Invalid period day')
 
-    transactions = {}
-
     query = f"""
     select
         t.transaction_id,
@@ -28,7 +26,19 @@ def get_all_transaction_items(period_day=None):
 
     all = session.execute(query).all()
 
-    for transaction in all:
+    return __map_results(all)
+
+
+def create_transaction_item(transaction_id: int, product_id: int):
+    transaction_item = TransactionItem(transaction_id, product_id)
+    session.add(transaction_item)
+    return transaction_item
+
+
+def __map_results(results) -> dict[int, set[int]]:
+    transactions = {}
+
+    for transaction in results:
         trans_id, prod_id = transaction
 
         if transactions.get(trans_id):
@@ -36,10 +46,5 @@ def get_all_transaction_items(period_day=None):
                 trans_id).union([prod_id])
         else:
             transactions[trans_id] = set([prod_id])
+
     return transactions
-
-
-def create_transaction_item(transaction_id: int, product_id: int):
-    transaction_item = TransactionItem(transaction_id, product_id)
-    session.add(transaction_item)
-    return transaction_item
