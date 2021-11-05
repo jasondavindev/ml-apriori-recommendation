@@ -1,7 +1,8 @@
 from domain.db.config import Base
+from domain.entities.transaction import Transaction
 from sqlalchemy import Column, Integer
-from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.schema import ForeignKey
 
 
 class TransactionItem(Base):
@@ -16,7 +17,7 @@ class TransactionItem(Base):
     product = relationship('Product', cascade='all,delete',
                            foreign_keys=[product_id])
     transaction = relationship(
-        'Transaction', cascade='all,delete', foreign_keys=[transaction_id])
+        Transaction, cascade='all,delete', foreign_keys=[transaction_id])
 
     def __init__(self, transaction_id, product_id):
         self.transaction_id = transaction_id
